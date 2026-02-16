@@ -40,3 +40,11 @@ export const GuideLicenseVerification = (payload) => {
     },
   });
 };
+
+export const UpdateGuiderStatus = (payload) => {
+  return api.post(`admin/users/verify-overall-guide-account`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

@@ -17,6 +17,8 @@ const GuiderDetails = () => {
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = React.useState('panel1');
   const [open, setOpen] = React.useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -151,7 +153,9 @@ useEffect(()=>{
                         <div className='document-status'>
                          <object data={item?.document_file}  width="300" height="200"> </object>
                          <a href={item?.document_file} download target='_blank' className='btn btn-sm btn-warning'>Download</a>
+                         {item?.document_category === 'government_id' &&
                          <button className='btn btn-sm btn-primary' onClick={()=>handleOpen(true)}>Status Update</button>
+                }
                         </div>
                  
                     </div>
@@ -330,13 +334,27 @@ useEffect(()=>{
         <Modal.Header closeButton>
           <Modal.Title>Documents Update</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+        <Modal.Body>
+          <p>Here you can update the status of the document and provide feedback to the guider if necessary.</p>
+          <div className='form-group mb-3'>
+            <label htmlFor="status">Document Status</label>
+            <select className='form-control' id="status">
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div className='form-group mb-3'>
+            <label htmlFor="feedback">Feedback (optional)</label>
+            <textarea className='form-control' id="feedback" rows="3"></textarea>
+          </div>
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
           <Button variant="primary" onClick={handleClose}>
-            Save Changes
+            Update
           </Button>
         </Modal.Footer>
       </Modal>

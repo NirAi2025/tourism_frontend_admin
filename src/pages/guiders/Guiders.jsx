@@ -8,15 +8,23 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
-import { GetGuiders } from '../../api/apiService';
+import { GetGuiders, UpdateGuiderStatus } from '../../api/apiService';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { NavLink } from 'react-router-dom';
 import SkeltonLoader from '../../component/SkeltonLoader';
+import { Modal } from 'react-bootstrap';
 
 const Guiders = () => {
 
   const [listdata, setListData] = useState([])
   const [loading, setLoading] = useState(false)
+    const [open, setOpen] = React.useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [status, setStatus] = useState('1');
+    const [feedback, setFeedback] = useState('');
+  
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
 
 
@@ -43,6 +51,31 @@ useEffect(()=>{
 },[])
 
 
+const UpdateHandel = async ()=>{
+ 
+
+  try {
+    // Call the API to update the guider status
+    const payload = {
+      guideId: selectedItem.id,
+      status: parseInt(status),
+      remarks: feedback,
+    };
+    const response = await UpdateGuiderStatus(payload);
+    if (response?.data?.success) {
+      console.log('Guider status updated successfully');
+      // Optionally, you can refresh the guider list or update the UI accordingly
+      GetData(); // Refresh the guider list after updating status
+    } else {
+      console.error('Failed to update guider status:', response?.data?.message);
+    }
+    console.log('API response:', response);
+  } catch (error) {
+    console.error('Error updating guider status:', error);
+  }
+
+  handleClose();
+}
 
 
 
@@ -62,6 +95,7 @@ useEffect(()=>{
             <TableCell >Email</TableCell>
             <TableCell >Phone</TableCell>
             <TableCell >Status</TableCell>
+            <TableCell >Approve</TableCell>
             <TableCell >Action</TableCell>
           </TableRow>
         </TableHead>
@@ -81,10 +115,22 @@ useEffect(()=>{
               <TableCell > {item?.email}</TableCell>
               <TableCell>+ {item?.country_code}, {item?.phone}</TableCell>
               <TableCell>
-                <Button variant="outlined" size="small" color="error">
+                {item?.status == 1 ?
+                  <Button variant="outlined" size="small" color="success">
+                    Approved
+                </Button>
+                :
+                  <Button variant="outlined" size="small" color="error">
                     Pending
-                    </Button>
+                </Button>
+
+              }
+              
           </TableCell>
+          <TableCell>
+           
+             <Button variant="outlined" size="small" color="primary" onClick={() => { setSelectedItem(item); handleOpen(); }}>Update Status</Button>
+              </TableCell>
           <TableCell>
             <NavLink to={`/guiders/${item?.id}`}><RemoveRedEyeIcon /></NavLink>
           </TableCell>
@@ -99,7 +145,32 @@ useEffect(()=>{
     </TableContainer>
       }
      
-     
+     <Modal show={open} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Status Update</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Here you can update the status for guider listing</p>
+          <div className='form-group mb-3'>
+            <select className='form-control' id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="1">Approved</option>
+              <option value="0">Rejected</option>
+            </select>
+          </div>
+          <div className='form-group mb-3'>
+            <label htmlFor="feedback">Feedback (optional)</label>
+            <textarea className='form-control' id="feedback" rows="3" value={feedback} onChange={(e) => setFeedback(e.target.value)}></textarea>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={()=>UpdateHandel()}>
+            Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   )
 }

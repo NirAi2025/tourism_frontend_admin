@@ -7,7 +7,10 @@ const AppHeader = () => {
         Admin
         <ul className='d-flex align-items-center gap-4'>
           <li>
-            <Button variant="contained" onClick={() => alert('Clicked!')}>
+            <Button variant="contained" onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}>
     Log out
     </Button>
            
